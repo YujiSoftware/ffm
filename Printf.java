@@ -8,17 +8,16 @@ import static java.lang.foreign.ValueLayout.ADDRESS;
 import static java.lang.foreign.ValueLayout.JAVA_INT;
 
 public class Printf {
-    private static final Linker LINKER = Linker.nativeLinker();
-
-    private static final MethodHandle PRINTF = LINKER.downcallHandle(
-            LINKER.defaultLookup().lookup("printf").orElseThrow(() -> new RuntimeException("The symbol printf is not found")),
-            FunctionDescriptor.ofVoid(ADDRESS, JAVA_INT));
-
     public static void main(String[] args) throws Throwable {
+        Linker linker = Linker.nativeLinker();
+        MethodHandle printf = linker.downcallHandle(
+                linker.defaultLookup().lookup("printf").orElseThrow(),
+                FunctionDescriptor.ofVoid(ADDRESS, JAVA_INT));
+
         MemorySegment format = SegmentAllocator.implicitAllocator().allocateUtf8String("Hello world from Java %d");
         int version = Integer.getInteger("java.specification.version");
 
-        PRINTF.invoke(format, version);
+        printf.invoke(format, version);
     }
 }
 

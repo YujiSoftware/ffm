@@ -12,7 +12,7 @@ public class MessageBoxA {
         try (MemorySession session = MemorySession.openConfined()) {
             SymbolLookup lookup = SymbolLookup.libraryLookup("User32", session);
             MethodHandle messageBox = linker.downcallHandle(
-                    lookup.lookup("MessageBoxA").get(),
+                    lookup.lookup("MessageBoxA").orElseThrow(),
                     FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT));
 
             MemorySegment text = session.allocateUtf8String("Hello world.");

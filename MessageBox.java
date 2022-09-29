@@ -8,11 +8,10 @@ public class MessageBox {
     private static final int MB_ICONINFORMATION = 0x00000040;
     private static final int MB_OKCANCEL = 0x00000001;
 
-    public static MemorySegment allocateUtf16String(String str, SegmentAllocator allocator) {
-
+    public static MemorySegment allocateUtf16String(String str) {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_16LE);
-        MemorySegment addr = allocator.allocate(bytes.length + 1);
-
+        MemorySegment addr = MemorySession.openImplicit().allocate(bytes.length + 1);
+        
         MemorySegment segment = MemorySegment.ofArray(bytes);
         addr.copyFrom(segment);
         addr.set(JAVA_BYTE, bytes.length, (byte) 0);
@@ -22,18 +21,19 @@ public class MessageBox {
 
     public static void main(String[] args) throws Throwable {
         Linker linker = Linker.nativeLinker();
-        try (MemorySession session = MemorySession.openConfined()) {
-            SymbolLookup lookup = SymbolLookup.libraryLookup("User32", session);
-            MethodHandle messageBox = linker.downcallHandle(
-                    lookup.lookup("MessageBoxW").orElseThrow(),
-                    FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT));
+        SymbolLookup lookup =
+                SymbolLookup.libraryLookup("User32", MemorySession.openImplicit());
+        MemorySegment symbol =
+                lookup.lookup("MessageBoxW").orElseThrow();
+        FunctionDescriptor descriptor =
+                FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT);
+        MethodHandle messageBox =
+                linker.downcallHandle(symbol, descriptor);
 
-            MemorySegment text = allocateUtf16String("こんにちは！", session);
-            MemorySegment caption = allocateUtf16String("Java", session);
+        MemorySegment text = allocateUtf16String("Hello world!");
+        MemorySegment caption = allocateUtf16String("Java");
 
-            int ret = (int) messageBox.invoke(0, text, caption, MB_OKCANCEL | MB_ICONINFORMATION);
-
-            System.out.println(ret);
-        }
+        int ret = (int) messageBox.invoke(0, text, caption, MB_OKCANCEL | MB_ICONINFORMATION);
+        System.out.println(ret);
     }
 }

@@ -3,6 +3,7 @@
 ## C API sample
 
 * Printf.java
+* StrLen.java
 
 ## Win32 API Sample
 

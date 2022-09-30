@@ -1,23 +1,28 @@
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.foreign.*;
+import java.lang.foreign.GroupLayout;
+import java.lang.foreign.MemoryLayout;
+import java.lang.foreign.MemorySegment;
+import java.lang.foreign.MemorySession;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 
+import static java.lang.foreign.ValueLayout.*;
+
 public class ClassReader {
     private static final GroupLayout CLASS_LAYOUT = MemoryLayout.structLayout(
-            ValueLayout.JAVA_INT.withOrder(ByteOrder.BIG_ENDIAN).withName("magic"),
-            ValueLayout.JAVA_SHORT.withOrder(ByteOrder.BIG_ENDIAN).withName("minor_version"),
-            ValueLayout.JAVA_SHORT.withOrder(ByteOrder.BIG_ENDIAN).withName("major_version")
+            JAVA_INT.withOrder(ByteOrder.BIG_ENDIAN).withName("magic"),
+            JAVA_SHORT.withOrder(ByteOrder.BIG_ENDIAN).withName("minor_version"),
+            JAVA_SHORT.withOrder(ByteOrder.BIG_ENDIAN).withName("major_version")
     );
 
     private static final VarHandle MAGIC =
-            CLASS_LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("magic"));
+            CLASS_LAYOUT.varHandle(PathElement.groupElement("magic"));
     private static final VarHandle MINOR_VERSION =
-            CLASS_LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("minor_version"));
+            CLASS_LAYOUT.varHandle(PathElement.groupElement("minor_version"));
     private static final VarHandle MAJOR_VERSION =
-            CLASS_LAYOUT.varHandle(MemoryLayout.PathElement.groupElement("major_version"));
+            CLASS_LAYOUT.varHandle(PathElement.groupElement("major_version"));
 
     public static void main(String[] args) throws IOException {
         ClassLoader loader = ClassReader.class.getClassLoader();

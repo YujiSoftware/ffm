@@ -1,5 +1,7 @@
 # Foreign Function & Memory API Samples
 
+[JEP 424 Foreign Function & Memory API を試しに使ってみました！ - SpeakerDeck](https://speakerdeck.com/yujisoftware/jep-424-foreign-function-and-memory-api-woshi-sinishi-tutemimasita)
+
 ## C API sample
 
 * [Printf.java](./Printf.java)

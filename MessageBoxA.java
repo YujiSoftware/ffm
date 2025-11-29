@@ -10,7 +10,8 @@ public class MessageBoxA {
     public static void main(String[] args) throws Throwable {
         Linker linker = Linker.nativeLinker();
         try (Arena arena = Arena.ofConfined()) {
-            SymbolLookup lookup = SymbolLookup.libraryLookup("User32", arena);
+            SymbolLookup lookup =
+                    SymbolLookup.libraryLookup("User32", arena);
             MethodHandle messageBox = linker.downcallHandle(
                     lookup.find("MessageBoxA").orElseThrow(),
                     FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT));

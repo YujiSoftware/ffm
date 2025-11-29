@@ -9,14 +9,14 @@ public class MessageBoxA {
 
     public static void main(String[] args) throws Throwable {
         Linker linker = Linker.nativeLinker();
-        try (MemorySession session = MemorySession.openConfined()) {
-            SymbolLookup lookup = SymbolLookup.libraryLookup("User32", session);
+        try (Arena arena = Arena.ofConfined()) {
+            SymbolLookup lookup = SymbolLookup.libraryLookup("User32", arena);
             MethodHandle messageBox = linker.downcallHandle(
-                    lookup.lookup("MessageBoxA").orElseThrow(),
+                    lookup.find("MessageBoxA").orElseThrow(),
                     FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT));
 
-            MemorySegment text = session.allocateUtf8String("Hello world.");
-            MemorySegment caption = session.allocateUtf8String("Java");
+            MemorySegment text = arena.allocateFrom("Hello world.");
+            MemorySegment caption = arena.allocateFrom("Java");
 
             int ret = (int) messageBox.invoke(0, text, caption, MB_OKCANCEL | MB_ICONINFORMATION);
 

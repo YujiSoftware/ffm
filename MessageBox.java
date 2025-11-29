@@ -10,7 +10,7 @@ public class MessageBox {
 
     public static MemorySegment allocateUtf16String(String str) {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_16LE);
-        MemorySegment addr = MemorySession.openImplicit().allocate(bytes.length + 1);
+        MemorySegment addr = Arena.ofAuto().allocate(bytes.length + 1);
         
         MemorySegment segment = MemorySegment.ofArray(bytes);
         addr.copyFrom(segment);
@@ -22,9 +22,9 @@ public class MessageBox {
     public static void main(String[] args) throws Throwable {
         Linker linker = Linker.nativeLinker();
         SymbolLookup lookup =
-                SymbolLookup.libraryLookup("User32", MemorySession.openImplicit());
+                SymbolLookup.libraryLookup("User32", Arena.ofAuto());
         MemorySegment symbol =
-                lookup.lookup("MessageBoxW").orElseThrow();
+                lookup.find("MessageBoxW").orElseThrow();
         FunctionDescriptor descriptor =
                 FunctionDescriptor.of(JAVA_INT, JAVA_LONG, ADDRESS, ADDRESS, JAVA_INT);
         MethodHandle messageBox =

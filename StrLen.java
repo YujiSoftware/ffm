@@ -5,14 +5,14 @@ public class StrLen {
     public static void main(String[] args) throws Throwable {
         Linker linker = Linker.nativeLinker();
         MemorySegment symbol =
-                linker.defaultLookup().lookup("strlen").orElseThrow();
+                linker.defaultLookup().find("strlen").orElseThrow();
         FunctionDescriptor descriptor =
                 FunctionDescriptor.of(ValueLayout.JAVA_LONG, ValueLayout.ADDRESS);
         MethodHandle strlen =
                 linker.downcallHandle(symbol, descriptor);
 
         MemorySegment cString =
-                SegmentAllocator.implicitAllocator().allocateUtf8String("Hello");
+                Arena.ofAuto().allocateFrom("Hello");
         long len = (long) strlen.invoke(cString);
 
         System.out.println(len);

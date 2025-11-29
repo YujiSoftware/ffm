@@ -1,9 +1,9 @@
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.foreign.Arena;
 import java.lang.foreign.GroupLayout;
 import java.lang.foreign.MemoryLayout;
 import java.lang.foreign.MemorySegment;
-import java.lang.foreign.MemorySession;
 import java.lang.invoke.VarHandle;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
@@ -30,12 +30,12 @@ public class ClassReader {
 
         try (FileInputStream stream = new FileInputStream(loader.getResource(name).getFile());
              FileChannel channel = stream.getChannel()) {
-            try (MemorySession session = MemorySession.openConfined()) {
-                MemorySegment segment = channel.map(FileChannel.MapMode.READ_ONLY, 0, 8, session);
+            try (Arena arena = Arena.ofConfined()) {
+                MemorySegment segment = channel.map(FileChannel.MapMode.READ_ONLY, 0, 8, arena);
 
-                int magic = (int) MAGIC.get(segment);
-                short minor = (short) MINOR_VERSION.get(segment);
-                short major = (short) MAJOR_VERSION.get(segment);
+                int magic = (int) MAGIC.get(segment, 0);
+                short minor = (short) MINOR_VERSION.get(segment, 0);
+                short major = (short) MAJOR_VERSION.get(segment, 0);
 
                 System.out.format("magic=%02X, minor=%d, major=%d\n", magic, minor, major);
             }

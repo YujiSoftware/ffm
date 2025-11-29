@@ -9,7 +9,7 @@ public class Raise {
         Linker linker = Linker.nativeLinker();
         MethodHandle raise =
                 linker.downcallHandle(
-                        linker.defaultLookup().lookup("raise").orElseThrow(),
+                        linker.defaultLookup().find("raise").orElseThrow(),
                         FunctionDescriptor.of(JAVA_INT, JAVA_INT));
         
         // kill -3 = get java thread dump
